@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<title>GEMCO . Trazabilidad Equipos - Prototipo A (Tarjetas)</title>
+<style>
+  :root{
+    --navy-900:#0b1220; --navy-800:#0f172a; --bg:#f4f6fa; --card:#ffffff;
+    --ink-1:#0b1220; --ink-2:#46516a; --ink-3:#8892a6; --border:#e4e8f0;
+    --demo:#2f6fed; --demo-soft:#e8f0fe;
+    --prestamo:#22a06b; --prestamo-soft:#e1f7ec;
+    --incompleto:#ef4360; --incompleto-soft:#fde7ec;
+    --nota:#8892a6; --nota-soft:#eef1f5;
+    --disp:#0ea5b7; --disp-soft:#e1f7f9;
+    --radius:14px; --shadow:0 1px 2px rgba(11,18,32,.04), 0 8px 22px -8px rgba(11,18,32,.12);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink-1);}
+  header{background:var(--navy-800);color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;}
+  header .brand{font-weight:800;letter-spacing:-.02em;font-size:1.15rem;}
+  header .brand span{color:#93c5fd;font-weight:600;}
+  header .mes{font-weight:600;font-size:.95rem;opacity:.85;text-transform:uppercase;letter-spacing:.08em;}
+  main{padding:22px 28px 60px;max-width:1400px;margin:0 auto;}
+  .summary{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 18px;box-shadow:var(--shadow);min-width:140px;}
+  .stat .n{font-size:1.6rem;font-weight:800;}
+  .stat .l{font-size:.78rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:600;}
+  .stat.demo .n{color:var(--demo);} .stat.prestamo .n{color:var(--prestamo);}
+  .stat.incompleto .n{color:var(--incompleto);} .stat.nota .n{color:var(--nota);} .stat.disp .n{color:var(--disp);}
+
+  section.grupo{margin-bottom:34px;}
+  .grupo h2{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:700;margin:0 0 14px;}
+  .grupo h2 .dot{width:11px;height:11px;border-radius:50%;}
+  .grupo h2 .count{font-weight:600;color:var(--ink-3);font-size:.85rem;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--navy-800));}
+  .card .cat{font-size:.72rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+  .card .modelo{font-size:1.05rem;font-weight:700;margin-top:2px;}
+  .card .serie{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--ink-2);margin-top:1px;}
+  .card .lugar{margin-top:8px;font-size:.9rem;font-weight:600;}
+  .card .rango{font-size:.8rem;color:var(--ink-2);margin-top:2px;}
+  .daybar{display:flex;gap:2px;margin-top:10px;}
+  .daybar i{flex:1;height:10px;border-radius:2px;background:var(--border);}
+  .daybar i.on{background:var(--c,var(--navy-800));}
+  .card.disp{opacity:.75;}
+  .card.disp .modelo{color:var(--ink-2);}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">GEMCO <span>. Trazabilidad Equipos</span></div>
+  <div class="mes" id="mesLabel"></div>
+</header>
+<main>
+  <div class="summary" id="summary"></div>
+  <div id="grupos"></div>
+</main>
+<script>
+const DATA = {"mes": "Julio", "anio": 2026, "num_dias": 30, "buckets": {"Demostración": [{"categoria": "Carros de Endoscopía", "modelo": "PT-V10C", "numero_serie": "A0007Z0392", "descripcion": "Plataforma de trabajo, carro Pentax Medical", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Monitores", "modelo": "32HR734S", "numero_serie": "509NTDVPE098", "descripcion": "Monitor LG MiniLed 31.5 Pulgadas, 4K", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Video procesadores", "modelo": "EPK-i8020c", "numero_serie": "F0023Z0050", "descripcion": "Video Procesador 4k  5 LED con OE  serie Inspira", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Gastroscopios", "modelo": "EG29-i20c", "numero_serie": "A0038AB136", "descripcion": "Videogastroscopio estándar serie inspira HD+", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Gastroscopios", "modelo": "EG29-i20c", "numero_serie": "A0038A0801", "descripcion": "Video gastroscopio estándar serie Inspira  HD+ , insercion 9.8mm (nuevo)", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Gastroscopios", "modelo": "EG29-i20c", "numero_serie": "A0038A0802", "descripcion": "Video gastroscopio estándar serie Inspira  HD+ , insercion 9.8mm (nuevo)", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Periféricos", "modelo": "PCI-V10C", "numero_serie": "A0008Z0008", "descripcion": "Unidad de insuflación CO2 PENTAX Medical", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Periféricos", "modelo": "14-E400", "numero_serie": "5959", "descripcion": "Aqua Master Creo Medical", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Otorrinolaringología", "modelo": "7-EMR-050", "numero_serie": "2501-23-01", "descripcion": "CROMA GENERATOR FOOTSWITCH", "segmento": {"lugar": "Hospital San José", "inicio": 14, "fin": 15}}, {"categoria": "Otorrinolaringología", "modelo": "7-PG1-132", "numero_serie": "00-327", "descripcion": "Footswitch CROMA", "segmento": {"lugar": "Hospital San José", "inicio": 14, "fin": 15}}, {"categoria": "Otorrinolaringología", "modelo": "7-RS2-210", "numero_serie": "2-RS2-210", "descripcion": "Interface Cable CROMA (3 unidades)", "segmento": {"lugar": "Hospital San José", "inicio": 14, "fin": 15}}, {"categoria": "Electrobisturí de Alta Frecuencia", "modelo": "ARC 400 900-400", "numero_serie": "40007098", "descripcion": "Unidad Electroquirúrgica ARC 400", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Electrobisturí de Alta Frecuencia", "modelo": "ARC PLUS 900-001", "numero_serie": "90101176", "descripcion": "ARC PLUS Unidad de Argón para ARC 400", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Electrobisturí de Alta Frecuencia", "modelo": "ARC CART 902-022", "numero_serie": "266539", "descripcion": "ARC CART 902-022", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "SHA-P5", "numero_serie": "ESHA-P5", "descripcion": "Comprobador manual de fugas", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "ECilindroCO2", "numero_serie": "ECILINDROCO2", "descripcion": "Cilindro de CO2", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "ECilindroCO2", "numero_serie": "ECILINDROCO2", "descripcion": "Cilindro de CO2", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "E10644", "numero_serie": "E10645", "descripcion": "Cilindro de Argón", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "Reductor de presión 900-908", "numero_serie": "36005", "descripcion": "Manorreductor para gases medicinales, con medidor de presión", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "Pedal Doble 901-031", "numero_serie": "16657", "descripcion": "Pedal doble pedal, con interruptor, cable 4m", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "Cable sonda argón 932-146", "numero_serie": "932-146", "descripcion": "Cable para sonda de argón flexible COMFORT, 2,5 M", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "Cable conector electrodo neutro 380-050", "numero_serie": "380-050", "descripcion": "Cable placa de retorno de un solo uso", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "Cable monopolar 431-045", "numero_serie": "431-045", "descripcion": "Cable monopolar, endoscopia, conector hembra", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}, {"categoria": "Accesorios equipos", "modelo": "Cable fibra óptica 901-051", "numero_serie": "Lot 604/791", "descripcion": "Cable de fibra óptica ARC PLUS", "segmento": {"lugar": "Hospital Antofagasta", "inicio": 1, "fin": 6}}], "Préstamo": [], "Incompleto": [], "Nota/Servicio": [{"categoria": "Gastroscopios", "modelo": "EG-2990Zi", "numero_serie": "K110120", "descripcion": "Videoendoscopio Alta Definición HD+ Magnificación Óptica Aumento total de 136X", "segmento": {"lugar": "Servicio Técnico", "inicio": 1, "fin": 1}}, {"categoria": "Accesorios equipos", "modelo": "ZSCAN EVO HARDWARE KIT FULL HD", "numero_serie": "", "descripcion": "Kit Hardware ZscanSoftware (tarjeta + capturador) No incluye Software", "segmento": {"lugar": "?", "inicio": 1, "fin": 1}}], "Disponible": [{"categoria": "Carros de Endoscopía", "modelo": "PT-V10C", "numero_serie": "A0007Z0656", "descripcion": "Plataforma de trabajo, carro Pentax Medical", "segmentos": []}, {"categoria": "Monitores", "modelo": "32HL714S", "numero_serie": "504NTRL85198", "descripcion": "Monitor Surgical 31.5 Pulgadas, 4K, IPS, 8MP, 12G-SDI. ELG0500732HL714S", "segmentos": []}, {"categoria": "Monitores", "modelo": "27HQ710S", "numero_serie": "405NTUWHM750", "descripcion": "Monitor LG Surgical 27 Pulgadas, 4k. ELG0500627HQ710", "segmentos": []}, {"categoria": "Monitores", "modelo": "RADIANCE", "numero_serie": "20-360051", "descripcion": "Monitor NDS Radiance 27 pulgadas", "segmentos": []}, {"categoria": "Monitores", "modelo": "LMD-X3200MD", "numero_serie": "8000996", "descripcion": "Monitor SONY 32 pulgadas, 4K. ELMD-X3200", "segmentos": []}, {"categoria": "Video procesadores", "modelo": "EPK-i8020c", "numero_serie": "F0023Z0025", "descripcion": "Video Procesador 4k  5 LED con OE  serie Inspira", "segmentos": []}, {"categoria": "Video procesadores", "modelo": "EPK-i5500c", "numero_serie": "D0000Z1015", "descripcion": "Video Procesador Imagina", "segmentos": []}, {"categoria": "Video procesadores", "modelo": "EPK-3000", "numero_serie": "B010515", "descripcion": "Video Procesador DEFINA", "segmentos": []}, {"categoria": "Gastroscopios", "modelo": "EG29-i10c", "numero_serie": "E0008Z2104", "descripcion": "Video gastroscopio estándar serie Imagina HD+, inserción 9.8mm", "segmentos": []}, {"categoria": "Gastroscopios", "modelo": "EG29-i10c", "numero_serie": "E006LZ0732", "descripcion": "Video gastroscopio estándar serie Imagina HD+, inserción 9.8mm", "segmentos": []}, {"categoria": "Gastroscopios", "modelo": "EG29-i10c", "numero_serie": "F0008Z3338", "descripcion": "Video gastroscopio estándar serie Imagina HD+, inserción 9.8mm", "segmentos": []}, {"categoria": "Gastroscopios de ultrasonido", "modelo": "EG38-J10UT", "numero_serie": "Q00XHA0294", "descripcion": "Videogastroscopio de Ultrasonido Lineal compatible con ecógrafo Arietta 65", "segmentos": []}, {"categoria": "Gastroscopios de ultrasonido", "modelo": "EG-3870UTK", "numero_serie": "A110354", "descripcion": "Video ecoendoscopio lineal GI serie K", "segmentos": []}, {"categoria": "Gastroscopios de ultrasonido", "modelo": "Duodenoscopios", "numero_serie": "", "descripcion": "", "segmentos": []}, {"categoria": "Gastroscopios de ultrasonido", "modelo": "ED34-i10cT2", "numero_serie": "A0065ZA003", "descripcion": "Duodenoscopio Imagina Con sensor de imagen CMOS, LED con capuchon y uñeta removible", "segmentos": []}, {"categoria": "Gastroscopios de ultrasonido", "modelo": "ED34-i10cT2", "numero_serie": "A0065Z0116", "descripcion": "Duodenoscopio, tapa de elevador desechable", "segmentos": []}, {"categoria": "Gastroscopios de ultrasonido", "modelo": "ED34-i10cT2", "numero_serie": "A0065Z0121", "descripcion": "Duodenoscopio, tapa de elevador desechable", "segmentos": []}, {"categoria": "Gastroscopios de ultrasonido", "modelo": "ED34-i10T", "numero_serie": "M110077", "descripcion": "Duodenoscopio, tapa de elevador desechable", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EC38-i10cL", "numero_serie": "E0002Z0896", "descripcion": "Videocolonoscopio Estandar serie Imagina HD+  inserción 13.2, canal de 3.8mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EC38-i10cL", "numero_serie": "E0002Z0888", "descripcion": "Videocolonoscopio Estandar serie Imagina HD+  inserción 13.2, canal de 3.8mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EC38-i10cL", "numero_serie": "E0002Z0897", "descripcion": "Videocolonoscopio Estandar serie Imagina HD+  inserción 13.2, canal de 3.8mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EC38-i20CL", "numero_serie": "A002FA0623", "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EC38-i20CL", "numero_serie": "A002FA0627", "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EC38-i20CL", "numero_serie": "A002FA0629", "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EC-3890LZi", "numero_serie": "H110191", "descripcion": "Videocolonoscopio Alta Definición HD+ Magnificación Óptica Aumento total de 136X", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "Broncoscopios", "numero_serie": "", "descripcion": "", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EB15-J10", "numero_serie": "N00UPAB006", "descripcion": "Videobroncoscopio rutina canal 2,0mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EB19-J10", "numero_serie": "N00URAB002", "descripcion": "Videobroncoscopio terapéutico canal 2,8mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EB-1975K", "numero_serie": "?", "descripcion": "Videobroncoscopio delgado compatible con Peróxido de Hidrógeno Inserción 6.3 canal de 2.8 mm", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "Broncoscopio de Ultrasonido", "numero_serie": "", "descripcion": "", "segmentos": []}, {"categoria": "Colonoscopios", "modelo": "EB19-J10U", "numero_serie": "B00UHA0080", "descripcion": "Videobroncoscopio para Ultrasonido Lineal", "segmentos": []}, {"categoria": "Periféricos", "modelo": "PWI-V10C", "numero_serie": "A0009Z0011", "descripcion": "Unidad de Irrigacion Pentax Medical", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "VNL8-J10", "numero_serie": "N00UMA0670", "descripcion": "Nasofaringolaringoscopio serie J10", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "VNL15-J10", "numero_serie": "N00UTA0274", "descripcion": "Nasofaringolaringoscopio terapéutico serie J10", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "E9106", "numero_serie": "4494", "descripcion": "Endoscopio rígido 70° 10mm", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "9400", "numero_serie": "59172-017", "descripcion": "Fuente de luz estroboscopia 300W", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "MU0P00000718", "numero_serie": "MU0P00000719", "descripcion": "Micrófono de laringe para conectar a 9400", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "9122C", "numero_serie": "9122C", "descripcion": "Adaptador fibra de luz naso para 9400", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "9380", "numero_serie": "59372-04", "descripcion": "Grabador de imágenes", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "7-EMR-050", "numero_serie": "2501-24-01", "descripcion": "CROMA GENERATOR FOOTSWITCH", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "7-EMR-050", "numero_serie": "2006-25-01", "descripcion": "CROMA GENERATOR FOOTSWITCH", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "7-PG1-132", "numero_serie": "00-306", "descripcion": "Footswitch CROMA", "segmentos": []}, {"categoria": "Otorrinolaringología", "modelo": "7-PG1-132", "numero_serie": "00-328", "descripcion": "Footswitch CROMA", "segmentos": []}, {"categoria": "Accesorios equipos", "modelo": "Pedal Single 901-011", "numero_serie": "15496", "descripcion": "Pedal de un solo pedal, con interruptor, cable 4m", "segmentos": []}, {"categoria": "Accesorios equipos", "modelo": "Pedal 901-032", "numero_serie": "15841", "descripcion": "Pedal doble, con tecla y estribo 4m", "segmentos": []}, {"categoria": "Accesorios equipos", "modelo": "Filtro ARC PLUS", "numero_serie": "SLGVS25US", "descripcion": "Filtro ARC PLUS Argón Plasma", "segmentos": []}, {"categoria": "Accesorios equipos", "modelo": "Cable monopolar 280-050", "numero_serie": "Lot 606/919", "descripcion": "Cable monopolar, conector hembra, 4mm", "segmentos": []}, {"categoria": "Accesorios equipos", "modelo": "Adaptador monopolar, 333-001", "numero_serie": "333-001", "descripcion": "Adaptador monopolar, instrumentos 2-4mm, Bovie de 8 mm", "segmentos": []}, {"categoria": "Accesorios equipos", "modelo": "ZSCAN DICOM HARDWARE KIT FULL HD", "numero_serie": "", "descripcion": "Kit Hardware ZscanSoftware (tarjeta + capturador) No incluye Software", "segmentos": []}]}};
+const COLORS = {
+  "Demostración": {c:"var(--demo)", soft:"var(--demo-soft)"},
+  "Préstamo": {c:"var(--prestamo)", soft:"var(--prestamo-soft)"},
+  "Incompleto": {c:"var(--incompleto)", soft:"var(--incompleto-soft)"},
+  "Nota/Servicio": {c:"var(--nota)", soft:"var(--nota-soft)"},
+  "Disponible": {c:"var(--disp)", soft:"var(--disp-soft)"}
+};
+document.getElementById('mesLabel').textContent = DATA.mes + ' ' + DATA.anio;
+
+const summaryEl = document.getElementById('summary');
+Object.entries(DATA.buckets).forEach(([estado, items]) => {
+  const cls = estado==='Demostración'?'demo':estado==='Préstamo'?'prestamo':estado==='Incompleto'?'incompleto':estado==='Nota/Servicio'?'nota':'disp';
+  summaryEl.innerHTML += `<div class="stat ${cls}"><div class="n">${items.length}</div><div class="l">${estado}</div></div>`;
+});
+
+const gruposEl = document.getElementById('grupos');
+function dayBar(seg, color, numDias){
+  let html = '<div class="daybar">';
+  for(let d=1; d<=numDias; d++){
+    const on = seg && d>=seg.inicio && d<=seg.fin;
+    html += `<i class="${on?'on':''}" style="--c:${color}"></i>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+Object.entries(DATA.buckets).forEach(([estado, items]) => {
+  if(items.length===0) return;
+  const color = COLORS[estado].c;
+  let cardsHtml = '';
+  items.forEach(eq => {
+    const seg = eq.segmento;
+    const isDisp = estado==='Disponible';
+    cardsHtml += `<div class="card ${isDisp?'disp':''}" style="--c:${color}">
+      <div class="cat">${eq.categoria||''}</div>
+      <div class="modelo">${eq.modelo}</div>
+      <div class="serie">${eq.numero_serie}</div>
+      ${seg ? `<div class="lugar">${seg.lugar}</div><div class="rango">Día ${seg.inicio}-${seg.fin}</div>` : '<div class="lugar">Sin asignación este mes</div>'}
+      ${dayBar(seg, color, DATA.num_dias)}
+    </div>`;
+  });
+  gruposEl.innerHTML += `<section class="grupo">
+    <h2><span class="dot" style="background:${color}"></span>${estado} <span class="count">(${items.length})</span></h2>
+    <div class="cards">${cardsHtml}</div>
+  </section>`;
+});
+</script>
+</body>
+</html>

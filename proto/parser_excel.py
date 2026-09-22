@@ -1,78 +1,173 @@
+"""
+Lee el Excel de trazabilidad y genera `datos_mes_actual.json` con la pestaña
+del MES ACTUAL del sistema.
+
+Puntos importantes de robustez (no simplificar sin leer esto):
+
+- El Excel NO tiene nombre fijo: Brenda manda una copia nueva cada tanto y el
+  nombre cambia ("Copia de Trazabilidad ... Hasta oct.xlsx"). Se busca por
+  patrón en la carpeta del proyecto y se usa el archivo .xlsx de trazabilidad
+  más reciente por fecha de modificación.
+- El archivo vive en OneDrive y puede estar bloqueado o abierto en Excel; se
+  copia a una carpeta temporal antes de leerlo para evitar PermissionError.
+- El mes/año de cada pestaña se toma de la celda B2 (fecha real del mes) y solo
+  si no sirve se cae al nombre de la pestaña. Así funcionan pestañas con nombre
+  raro (" Enero 2026", "Septiembre" sin año, "Julio 2026 (2)").
+- El estado de cada día está en el COLOR DE RELLENO de la celda, no en texto.
+"""
+
+import colorsys
 import json
 import re
-import zipfile
-import colorsys
+import shutil
+import sys
+import tempfile
 import unicodedata
+import zipfile
 from datetime import datetime
 from pathlib import Path
 
 import openpyxl
 
-EXCEL_PATH = Path(__file__).parent.parent / "Trazabilidad Equipos Demostración.xlsx"
+BASE = Path(__file__).parent.parent
 OUT_PATH = Path(__file__).parent / "datos_mes_actual.json"
 
 MESES_ES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
             "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
+MESES_ABREV = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6,
+               "jul": 7, "ago": 8, "sep": 9, "set": 9, "oct": 10, "nov": 11, "dic": 12}
+
 # Orden de índice de tema usado por openpyxl en fgColor.theme
 THEME_ORDER = ["lt1", "dk1", "lt2", "dk2", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6"]
 
-
-def strip_accents(s):
-    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
-
-
-# Pestañas sin año explícito en el nombre (ej. "Septiembre" = Septiembre 2025).
+# Pestañas antiguas sin año en el nombre ni fecha en B2.
 SHEET_YEAR_OVERRIDE = {"septiembre": 2025}
 
 
-def parse_sheet_month_year(name):
-    """Extrae (mes 1-12, año) del nombre de una pestaña, ej. 'Julio 2026' -> (7, 2026)."""
-    raw = name.strip()
-    norm = strip_accents(raw).lower()
-    month_word = re.split(r"[\s-]", norm)[0]
-    mes = next((i + 1 for i, m in enumerate(MESES_ES) if strip_accents(m).lower() == month_word), None)
-    m = re.search(r"(\d{4})", raw)
-    if m:
-        anio = int(m.group(1))
-    else:
-        anio = SHEET_YEAR_OVERRIDE.get(month_word)
+def strip_accents(s):
+    return "".join(c for c in unicodedata.normalize("NFD", str(s)) if unicodedata.category(c) != "Mn")
+
+
+# --------------------------------------------------------------------------
+# Ubicar y abrir el Excel
+# --------------------------------------------------------------------------
+
+def find_excel(base=BASE):
+    """Devuelve el .xlsx de trazabilidad más reciente de la carpeta del proyecto."""
+    candidatos = [
+        p for p in base.glob("*.xlsx")
+        if not p.name.startswith("~$") and "trazabilidad" in strip_accents(p.name).lower()
+    ]
+    if not candidatos:
+        raise FileNotFoundError(
+            f"No se encontró ningún archivo *.xlsx con 'Trazabilidad' en el nombre dentro de:\n  {base}\n"
+            "Copia ahí el Excel que mandó Brenda (el nombre puede ser cualquiera, "
+            "mientras diga 'Trazabilidad')."
+        )
+    return max(candidatos, key=lambda p: p.stat().st_mtime)
+
+
+def copia_local(path):
+    """Copia el Excel a una carpeta temporal (OneDrive/Excel suelen dejarlo bloqueado)."""
+    tmpdir = Path(tempfile.mkdtemp(prefix="trazabilidad_"))
+    destino = tmpdir / "libro.xlsx"
+    shutil.copy2(path, destino)
+    return destino
+
+
+# --------------------------------------------------------------------------
+# Detección de mes/año de cada pestaña
+# --------------------------------------------------------------------------
+
+def mes_desde_texto(texto):
+    """'Septiembre 2026', ' Enero 2026', 'dic-2025' -> (mes, anio|None)."""
+    norm = strip_accents(texto).lower().strip()
+    mes = None
+    palabra = re.split(r"[\s\-_]+", norm)[0] if norm else ""
+    for i, m in enumerate(MESES_ES):
+        if palabra == strip_accents(m).lower():
+            mes = i + 1
+            break
+    if mes is None:
+        mes = MESES_ABREV.get(palabra[:3]) if palabra[:3] in MESES_ABREV else None
+    m = re.search(r"(20\d{2})", norm)
+    anio = int(m.group(1)) if m else None
     return mes, anio
 
 
-def find_current_sheet(wb, today=None):
-    today = today or datetime.now()
-    mes_nombre = MESES_ES[today.month - 1]
-    mes_norm = strip_accents(mes_nombre).lower()
-    candidatas = []
-    for name in wb.sheetnames:
-        if name.strip().upper() == "ACTIVO FIJO":
+def fila_fechas(ws, max_scan=15):
+    """Fila donde la columna E dice 'Fechas'. None si la pestaña no es de un mes."""
+    for r in range(1, max_scan):
+        v = ws.cell(row=r, column=5).value
+        if v and strip_accents(v).strip().lower().startswith("fecha"):
+            return r
+    return None
+
+
+def mes_anio_de_hoja(ws, nombre):
+    """Mes/año de la pestaña: primero la fecha real de B2, si no el nombre."""
+    b2 = ws.cell(row=2, column=2).value
+    if isinstance(b2, datetime):
+        return b2.month, b2.year
+
+    mes, anio = (None, None)
+    if isinstance(b2, str):
+        mes, anio = mes_desde_texto(b2)
+    if mes is None or anio is None:
+        mes_n, anio_n = mes_desde_texto(nombre)
+        mes = mes if mes is not None else mes_n
+        anio = anio if anio is not None else anio_n
+    if anio is None:
+        anio = SHEET_YEAR_OVERRIDE.get(strip_accents(nombre).strip().lower().split()[0]
+                                       if nombre.strip() else "")
+    return mes, anio
+
+
+def hojas_de_mes(wb):
+    """[(anio, mes, orden_en_libro, nombre)] de las pestañas que sí son de un mes."""
+    hojas = []
+    for idx, nombre in enumerate(wb.sheetnames):
+        ws = wb[nombre]
+        if fila_fechas(ws) is None:
+            continue  # INVENTARIO, ACTIVO FIJO, etc.
+        mes, anio = mes_anio_de_hoja(ws, nombre)
+        if mes is None or anio is None:
             continue
-        norm = strip_accents(name).lower()
-        if norm.startswith(mes_norm):
-            candidatas.append(name)
-    if candidatas:
-        for name in candidatas:
-            if str(today.year) in name:
-                return name, mes_nombre, today.year, True
-        return candidatas[0], mes_nombre, today.year, True
+        hojas.append((anio, mes, idx, nombre))
+    return hojas
 
-    # No existe pestaña del mes actual (el Excel todavía no fue actualizado por Brenda) ->
-    # usar la última pestaña con datos, en el orden en que aparece en el libro, y marcarla
-    # como NO correspondiente al mes actual para que el panel avise en vez de aparentar
-    # estar al día.
-    hojas = [n for n in wb.sheetnames if n.strip().upper() != "ACTIVO FIJO"]
+
+def find_current_sheet(wb, hoy=None):
+    """
+    Elige la pestaña del mes actual del sistema.
+
+    Si no existe (el Excel todavía no trae el mes nuevo), cae a la pestaña de mes
+    más reciente que no sea futura y marca `es_mes_actual=False` para que el panel
+    avise en vez de aparentar estar al día.
+    """
+    hoy = hoy or datetime.now()
+    hojas = hojas_de_mes(wb)
     if not hojas:
-        raise ValueError("El libro no tiene pestañas de meses (solo 'ACTIVO FIJO'?).")
-    nombre_fallback = hojas[-1]
-    mes_num, anio_fallback = parse_sheet_month_year(nombre_fallback)
-    if mes_num is None or anio_fallback is None:
-        raise ValueError(
-            f"No se encontró pestaña para el mes actual ({mes_nombre} {today.year}) y no se pudo "
-            f"determinar mes/año de la última pestaña disponible ('{nombre_fallback}')."
-        )
-    return nombre_fallback, MESES_ES[mes_num - 1], anio_fallback, False
+        raise ValueError("El libro no tiene ninguna pestaña con estructura de mes (fila 'Fechas' en columna E).")
 
+    exactas = [h for h in hojas if (h[0], h[1]) == (hoy.year, hoy.month)]
+    if exactas:
+        # Puede haber duplicados tipo "Julio 2026 (2)": se prefiere el nombre sin
+        # sufijo y, entre iguales, la pestaña que aparece más a la derecha.
+        exactas.sort(key=lambda h: (bool(re.search(r"\(\s*\d+\s*\)", h[3])), -h[2]))
+        anio, mes, _, nombre = exactas[0]
+        return nombre, MESES_ES[mes - 1], anio, True
+
+    pasadas = [h for h in hojas if (h[0], h[1]) <= (hoy.year, hoy.month)]
+    candidatas = pasadas or hojas
+    anio, mes, _, nombre = max(candidatas, key=lambda h: (h[0], h[1], h[2]))
+    return nombre, MESES_ES[mes - 1], anio, False
+
+
+# --------------------------------------------------------------------------
+# Color -> estado
+# --------------------------------------------------------------------------
 
 def get_theme_palette(path):
     with zipfile.ZipFile(path) as z:
@@ -140,6 +235,10 @@ class ColorClassifier:
         return "DESCONOCIDO"
 
 
+# --------------------------------------------------------------------------
+# Parseo de la pestaña del mes
+# --------------------------------------------------------------------------
+
 def limpio(v):
     if v is None:
         return None
@@ -148,12 +247,7 @@ def limpio(v):
 
 
 def parse_month_sheet(ws, classifier):
-    fechas_row = None
-    for r in range(1, 15):
-        v = ws.cell(row=r, column=5).value
-        if v and str(v).strip().lower().startswith("fecha"):
-            fechas_row = r
-            break
+    fechas_row = fila_fechas(ws)
     if fechas_row is None:
         raise ValueError("No se encontró la fila 'Fechas' en la columna E de esta pestaña")
 
@@ -234,19 +328,31 @@ def parse_month_sheet(ws, classifier):
 
 
 def main():
-    wb = openpyxl.load_workbook(EXCEL_PATH, data_only=True)
+    excel_original = find_excel()
+    excel = copia_local(excel_original)
+
+    wb = openpyxl.load_workbook(excel, data_only=True)
     sheet_name, mes_nombre, anio, es_mes_actual = find_current_sheet(wb)
     ws = wb[sheet_name]
-    theme_palette = get_theme_palette(EXCEL_PATH)
-    classifier = ColorClassifier(theme_palette)
+    classifier = ColorClassifier(get_theme_palette(excel))
 
     num_dias, buckets, avisos = parse_month_sheet(ws, classifier)
 
-    data = {"mes": mes_nombre, "anio": anio, "num_dias": num_dias, "es_mes_actual": es_mes_actual, "buckets": buckets}
+    data = {
+        "mes": mes_nombre,
+        "anio": anio,
+        "num_dias": num_dias,
+        "es_mes_actual": es_mes_actual,
+        "hoja": sheet_name,
+        "archivo_origen": excel_original.name,
+        "generado_en": datetime.now().strftime("%d/%m/%Y %H:%M"),
+        "buckets": buckets,
+    }
     OUT_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    print(f"Pestaña usada: {sheet_name}")
-    print(f"Mes/año detectado: {mes_nombre} {anio}  |  días en el mes: {num_dias}")
+    print(f"Excel usado   : {excel_original.name}")
+    print(f"Pestaña usada : {sheet_name}")
+    print(f"Mes/año       : {mes_nombre} {anio}  |  días en el mes: {num_dias}")
     if not es_mes_actual:
         print(
             f"AVISO: el Excel todavía no tiene pestaña del mes actual "
@@ -261,6 +367,12 @@ def main():
             print("  -", av)
     print(f"\nGuardado en: {OUT_PATH}")
 
+    shutil.rmtree(excel.parent, ignore_errors=True)
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        raise SystemExit(1)

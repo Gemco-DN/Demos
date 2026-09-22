@@ -8,10 +8,12 @@ entre "diapositivas" (como un panel de aeropuerto), agrupado por estado, y se
 publica como link estático en GitHub Pages.
 
 ## De dónde viene la información
-Archivo real: `Trazabilidad Equipos Demostración.xlsx`, guardado localmente junto al resto
-del proyecto (misma carpeta que este archivo). Los scripts (`proto/parser_excel.py`,
-`proto/gen_d.py`) lo resuelven con ruta relativa a `__file__`, no con una ruta absoluta
-de usuario — así sobrevive a cambios de computador/perfil de OneDrive sin tocar código.
+Archivo real: un `.xlsx` cuyo nombre contenga "Trazabilidad", guardado localmente junto
+al resto del proyecto (misma carpeta que este archivo). El nombre NO es fijo — cada copia
+que manda Brenda llega con otro nombre (ej. `Copia de Trazabilidad Equipos Demostración
+Hasta oct.xlsx`), por eso `proto/parser_excel.py` lo busca por patrón y toma el más
+reciente por fecha de modificación, con ruta relativa a `__file__` y no absoluta de
+usuario — así sobrevive a cambios de computador/perfil de OneDrive sin tocar código.
 (Antes vivía en `C:\Users\martin.guajardo\OneDrive - GEMCO GENERAL MACHINERY S.A\Documentos\Ideas de Proyectos\3. Equipos Demo\`;
 tras el cambio de equipo, la carpeta del proyecto completa —incluido el Excel— quedó en
 `C:\Users\Juan Martin Brante\GEMCO GENERAL MACHINERY S.A\Reportes - Documentos\Proyectos\3. Equipos Demo\`.)
@@ -91,19 +93,18 @@ proyecto — referencia un `panel_template.html` que nunca se llegó a crear.
 **No está terminado, tratarlo como borrador desechable, no como código
 funcional.**
 
-### Automatización pendiente de construir
-Un `.bat` que viva en el Escritorio de Martin y que, al ejecutarlo:
-1. Lea el Excel más reciente (la copia manual en la carpeta de OneDrive
-   mencionada arriba).
-2. Detecte automáticamente la pestaña del **mes/año actual del sistema**
-   (no hardcodear el mes).
-3. Regenere `panel.html` con los datos de esa pestaña.
-4. Haga `git add/commit/push` a un repositorio de GitHub con GitHub Pages
-   activado, para que el link público quede actualizado.
-   Confirmado: git y cuenta de GitHub Pages ya están configurados en la
-   máquina de Martin, así que el push debería poder correr sin pedir login
-   interactivo (verificar que las credenciales estén realmente cacheadas
-   antes de asumirlo).
+### Automatización — YA CONSTRUIDA (ver `README.md`)
+`actualizar.ps1` + `actualizar.bat` + `instalar_tarea.ps1` hacen el ciclo
+completo: ubicar el Excel (por patrón de nombre, ya no por nombre fijo —
+Brenda cambia el nombre en cada copia), detectar la pestaña del mes/año actual
+del sistema, regenerar `index.html` y hacer `git add/commit/push`. Una Tarea
+Programada de Windows lo corre todos los días a las 08:30, de modo que el día 1
+el panel cambia solo de mes. El panel además se auto-recarga en la TV cada 30
+minutos y al cruzar el cambio de mes.
+
+Lo único que sigue siendo manual es **dejar el Excel nuevo de Brenda en la
+carpeta del proyecto**; no hay sincronización automática posible con su OneDrive
+personal.
 
 ---
 

@@ -1,3 +1,12 @@
 .claude/
 __pycache__/
 *.pyc
+
+# Registro de las corridas automaticas (local, no se publica).
+actualizar.log
+
+# El Excel de Brenda: cambia de nombre en cada copia, contiene hojas que no se
+# publican (INVENTARIO, ACTIVO FIJO) y el repositorio es la fuente del PANEL,
+# no del Excel. Vive en esta carpeta pero no se versiona.
+*.xlsx
+~$*

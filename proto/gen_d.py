@@ -81,6 +81,7 @@ HTML = """<!DOCTYPE html>
     text-transform:uppercase;letter-spacing:.06em;position:relative;}
   .meta strong{display:block;color:#fff;font-size:1.7vh;font-family:var(--font-display);
     text-transform:none;letter-spacing:.02em;margin-top:.3vh;}
+  .meta .gen{display:block;color:#7f8bc0;font-size:1vh;margin-top:.35vh;letter-spacing:.04em;}
 
   main{flex:1 1 auto;padding:2vh 2.4vw 1.4vh;min-height:0;display:flex;flex-direction:column;}
 
@@ -201,7 +202,7 @@ HTML = """<!DOCTYPE html>
       <img src="data:image/png;base64,__LOGO_B64__" alt="GEMCO">
       <span class="subtitle">Trazabilidad · Equipos Demostración</span>
     </div>
-    <div class="meta" id="mes-meta">Mes actual<strong id="mes-label">—</strong></div>
+    <div class="meta" id="mes-meta">Mes actual<strong id="mes-label">—</strong><span class="gen" id="gen-label"></span></div>
   </header>
 
   <main>
@@ -259,6 +260,25 @@ document.getElementById('mes-label').textContent = DATA.mes + ' ' + DATA.anio;
 if (DATA.es_mes_actual === false) {
   document.getElementById('mes-meta').firstChild.textContent = '⚠ Últ. dato disponible';
 }
+if (DATA.generado_en) {
+  document.getElementById('gen-label').textContent = 'Actualizado ' + DATA.generado_en;
+}
+
+// ---- Auto-refresco: la TV queda encendida semanas, así que la página se
+// recarga sola para tomar el último deploy de GitHub Pages (el PC de Martin
+// regenera y publica todos los días). El query param evita la caché.
+const MINUTOS_RECARGA = 30;
+const MESES_NUM = {"Enero":1,"Febrero":2,"Marzo":3,"Abril":4,"Mayo":5,"Junio":6,"Julio":7,
+  "Agosto":8,"Septiembre":9,"Octubre":10,"Noviembre":11,"Diciembre":12};
+const MES_RENDERIZADO = (DATA.anio || 0) * 100 + (MESES_NUM[DATA.mes] || 0);
+function recargar(){ location.replace(location.pathname + '?t=' + Date.now()); }
+setInterval(recargar, MINUTOS_RECARGA * 60 * 1000);
+// Cambio de mes con el panel encendido: recarga apenas el reloj entra al mes
+// siguiente al que se está mostrando, sin esperar el ciclo de 30 minutos.
+setInterval(() => {
+  const ahora = new Date();
+  if (ahora.getFullYear() * 100 + (ahora.getMonth() + 1) > MES_RENDERIZADO) recargar();
+}, 60 * 1000);
 
 // ---- KPIs (siempre los 5 estados, aunque estén en 0) ----
 const kpiEl = document.getElementById('kpis');
@@ -281,8 +301,6 @@ function segmentos(eq){
   return eq.segmentos || [];
 }
 
-const MESES_NUM = {"Enero":1,"Febrero":2,"Marzo":3,"Abril":4,"Mayo":5,"Junio":6,"Julio":7,
-  "Agosto":8,"Septiembre":9,"Octubre":10,"Noviembre":11,"Diciembre":12};
 const MES_ACTUAL_NUM = MESES_NUM[DATA.mes] || 1;
 function fechaDDMM(dia){
   return `${String(dia).padStart(2,'0')}/${String(MES_ACTUAL_NUM).padStart(2,'0')}`;

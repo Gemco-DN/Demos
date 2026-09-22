@@ -261,7 +261,7 @@ if (DATA.es_mes_actual === false) {
   document.getElementById('mes-meta').firstChild.textContent = '⚠ Últ. dato disponible';
 }
 if (DATA.generado_en) {
-  document.getElementById('gen-label').textContent = 'Actualizado ' + DATA.generado_en;
+  document.getElementById('gen-label').textContent = 'Datos al ' + DATA.generado_en;
 }
 
 // ---- Auto-refresco: la TV queda encendida semanas, así que la página se

@@ -348,6 +348,21 @@ def main():
         "generado_en": datetime.now().strftime("%d/%m/%Y %H:%M"),
         "buckets": buckets,
     }
+
+    # La tarea programada corre todos los días, pero el Excel cambia pocas veces.
+    # Si los datos son idénticos a los de la corrida anterior se conserva la marca
+    # de tiempo vieja: así el archivo queda byte a byte igual, git no ve cambios y
+    # no se acumulan commits vacíos. De paso, la fecha que muestra el panel pasa a
+    # significar "datos actualizados al", que es lo que realmente importa.
+    if OUT_PATH.exists():
+        try:
+            previo = json.loads(OUT_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            previo = None
+        if previo and {k: v for k, v in previo.items() if k != "generado_en"} == \
+                      {k: v for k, v in data.items() if k != "generado_en"}:
+            data["generado_en"] = previo.get("generado_en", data["generado_en"])
+
     OUT_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
 
     print(f"Excel usado   : {excel_original.name}")

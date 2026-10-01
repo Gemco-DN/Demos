@@ -1,212 +1,29 @@
 {
- "mes": "Septiembre",
+ "mes": "Octubre",
  "anio": 2026,
- "num_dias": 30,
+ "num_dias": 31,
  "es_mes_actual": true,
- "hoja": "Septiembre 2026",
+ "hoja": "Octubre 2026",
  "archivo_origen": "Copia de Trazabilidad Equipos Demostración Hasta oct.xlsx",
- "generado_en": "22/09/2026 12:11",
+ "generado_en": "01/10/2026 09:38",
  "buckets": {
-  "Demostración": [
-   {
-    "categoria": "Carros de Endoscopía",
-    "modelo": "PT-V10C",
-    "numero_serie": "A0007Z0392",
-    "descripcion": "Plataforma de trabajo, carro Pentax Medical",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 14
-     }
-    ]
-   },
-   {
-    "categoria": "Monitores",
-    "modelo": "32HR734S",
-    "numero_serie": "509NTDVPE098",
-    "descripcion": "Monitor LG MiniLed 31.5 Pulgadas, 4K",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 14
-     }
-    ]
-   },
-   {
-    "categoria": "Video procesadores",
-    "modelo": "EPK-i8020c",
-    "numero_serie": "F0023Z0050",
-    "descripcion": "Video Procesador 4k  5 LED con OE  serie Inspira",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 14
-     }
-    ]
-   },
-   {
-    "categoria": "Gastroscopios",
-    "modelo": "EG29-i20c",
-    "numero_serie": "A0038A0801",
-    "descripcion": "Video gastroscopio estándar serie Inspira  HD+ , insercion 9.8mm (nuevo)",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 14
-     }
-    ]
-   },
-   {
-    "categoria": "Colonoscopios",
-    "modelo": "EC38-i20cL",
-    "numero_serie": "A002FA0623",
-    "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 14
-     }
-    ]
-   },
-   {
-    "categoria": "Colonoscopios",
-    "modelo": "EC38-i20cL",
-    "numero_serie": "A002FA0629",
-    "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 14
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-EMR-050",
-    "numero_serie": "2501-23-01",
-    "descripcion": "CROMA GENERATOR FOOTSWITCH",
-    "segmentos": [
-     {
-      "lugar": "Hospital Del Salvador",
-      "inicio": 8,
-      "fin": 9
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-EMR-050",
-    "numero_serie": "2501-24-01",
-    "descripcion": "CROMA GENERATOR FOOTSWITCH",
-    "segmentos": [
-     {
-      "lugar": "San Fernando",
-      "inicio": 7,
-      "fin": 9
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-EMR-050",
-    "numero_serie": "2006-25-01",
-    "descripcion": "CROMA GENERATOR FOOTSWITCH",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 11
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-PG1-132",
-    "numero_serie": "00-306",
-    "descripcion": "Footswitch CROMA",
-    "segmentos": [
-     {
-      "lugar": "San Fernando",
-      "inicio": 7,
-      "fin": 9
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-PG1-132",
-    "numero_serie": "00-327",
-    "descripcion": "Footswitch CROMA",
-    "segmentos": [
-     {
-      "lugar": "Hospital Del Salvador",
-      "inicio": 8,
-      "fin": 9
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-RS2-210",
-    "numero_serie": "11010307",
-    "descripcion": "Interface Cable CROMA",
-    "segmentos": [
-     {
-      "lugar": "San Fernando",
-      "inicio": 7,
-      "fin": 9
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-RS2-210",
-    "numero_serie": "",
-    "descripcion": "Interface Cable CROMA",
-    "segmentos": [
-     {
-      "lugar": "Hospital Del Salvador",
-      "inicio": 8,
-      "fin": 9
-     }
-    ]
-   },
-   {
-    "categoria": "Generador electroquirúrgico",
-    "modelo": "7-RS2-210",
-    "numero_serie": "",
-    "descripcion": "Interface Cable CROMA",
-    "segmentos": [
-     {
-      "lugar": "Hospital San José",
-      "inicio": 10,
-      "fin": 11
-     }
-    ]
-   },
-   {
-    "categoria": "Accesorios equipos",
-    "modelo": "SHA-P5",
-    "numero_serie": "11094",
-    "descripcion": "Comprobador manual de fugas",
-    "segmentos": [
-     {
-      "lugar": "Clínica MEDS",
-      "inicio": 9,
-      "fin": 9
-     }
-    ]
-   }
-  ],
+  "Demostración": [],
   "Préstamo": [],
   "Incompleto": [],
   "Nota/Servicio": [
+   {
+    "categoria": "Video procesadores",
+    "modelo": "EPK-i5500c",
+    "numero_serie": "D0000Z1015",
+    "descripcion": "Video Procesador Imagina",
+    "segmentos": [
+     {
+      "lugar": "Servicio Técnico",
+      "inicio": 1,
+      "fin": 1
+     }
+    ]
+   },
    {
     "categoria": "Gastroscopios",
     "modelo": "EG29-i10c",
@@ -256,6 +73,20 @@
     "segmentos": []
    },
    {
+    "categoria": "Carros de Endoscopía",
+    "modelo": "PT-V10C",
+    "numero_serie": "A0007Z0392",
+    "descripcion": "Plataforma de trabajo, carro Pentax Medical",
+    "segmentos": []
+   },
+   {
+    "categoria": "Monitores",
+    "modelo": "32HR734S",
+    "numero_serie": "509NTDVPE098",
+    "descripcion": "Monitor LG MiniLed 31.5 Pulgadas, 4K",
+    "segmentos": []
+   },
+   {
     "categoria": "Monitores",
     "modelo": "32HL714S",
     "numero_serie": "504NTRL85198",
@@ -292,8 +123,15 @@
    },
    {
     "categoria": "Video procesadores",
+    "modelo": "EPK-i8020c",
+    "numero_serie": "F0023Z0050",
+    "descripcion": "Video Procesador 4k  5 LED con OE  serie Inspira",
+    "segmentos": []
+   },
+   {
+    "categoria": "Video procesadores",
     "modelo": "EPK-i5500c",
-    "numero_serie": "D0000Z1015",
+    "numero_serie": "D0000Z1024",
     "descripcion": "Video Procesador Imagina",
     "segmentos": []
    },
@@ -330,6 +168,13 @@
     "modelo": "EG29-i20c",
     "numero_serie": "A0038AB136",
     "descripcion": "Videogastroscopio estándar serie inspira HD+",
+    "segmentos": []
+   },
+   {
+    "categoria": "Gastroscopios",
+    "modelo": "EG29-i20c",
+    "numero_serie": "A0038A0801",
+    "descripcion": "Video gastroscopio estándar serie Inspira  HD+ , insercion 9.8mm (nuevo)",
     "segmentos": []
    },
    {
@@ -412,7 +257,21 @@
    {
     "categoria": "Colonoscopios",
     "modelo": "EC38-i20cL",
+    "numero_serie": "A002FA0623",
+    "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm",
+    "segmentos": []
+   },
+   {
+    "categoria": "Colonoscopios",
+    "modelo": "EC38-i20cL",
     "numero_serie": "A002FA0627",
+    "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm",
+    "segmentos": []
+   },
+   {
+    "categoria": "Colonoscopios",
+    "modelo": "EC38-i20cL",
+    "numero_serie": "A002FA0629",
     "descripcion": "Video colonoscopio estandar  HD+  INSPIRA insercion 13.2mm canal 3.8 mm",
     "segmentos": []
    },
@@ -439,7 +298,7 @@
    },
    {
     "categoria": "Colonoscopios",
-    "modelo": "EB15-J11",
+    "modelo": "EB15-J10",
     "numero_serie": "N110173",
     "descripcion": "Videobroncoscopio rutina canal 2,0mm",
     "segmentos": []
@@ -524,7 +383,7 @@
    {
     "categoria": "Otorrinolaringología",
     "modelo": "MU0P00000718",
-    "numero_serie": "MU0P00000718",
+    "numero_serie": "MU0P00000719",
     "descripcion": "Micrófono de laringe para conectar a 9400",
     "segmentos": []
    },
@@ -550,31 +409,38 @@
     "segmentos": []
    },
    {
-    "categoria": "Otorrinolaringología",
-    "modelo": "MU0P00000717",
-    "numero_serie": "59512-029",
-    "descripcion": "Micrófono de laringe para conectar a 9400 (back up)",
+    "categoria": "Generador electroquirúrgico",
+    "modelo": "7-EMR-050",
+    "numero_serie": "2501-23-01",
+    "descripcion": "CROMA GENERATOR FOOTSWITCH",
     "segmentos": []
    },
    {
-    "categoria": "Otorrinolaringología",
-    "modelo": "9122C",
-    "numero_serie": "59447",
-    "descripcion": "Adaptador fibra de luz naso para 9400 (back up)",
+    "categoria": "Generador electroquirúrgico",
+    "modelo": "7-EMR-050",
+    "numero_serie": "2501-24-01",
+    "descripcion": "CROMA GENERATOR FOOTSWITCH",
     "segmentos": []
    },
    {
-    "categoria": "Otorrinolaringología",
-    "modelo": "SISTEMA CAPTURA",
-    "numero_serie": "",
-    "descripcion": "CABLE HDMI CONEXION ZSCAN + CONVERTIDORES",
+    "categoria": "Generador electroquirúrgico",
+    "modelo": "7-EMR-050",
+    "numero_serie": "2006-25-01",
+    "descripcion": "CROMA GENERATOR FOOTSWITCH",
     "segmentos": []
    },
    {
-    "categoria": "Otorrinolaringología",
-    "modelo": "REPROCESP",
-    "numero_serie": "",
-    "descripcion": "CONECTORES COMPATIBLES CON CHOYANG",
+    "categoria": "Generador electroquirúrgico",
+    "modelo": "7-PG1-132",
+    "numero_serie": "00-306",
+    "descripcion": "Footswitch CROMA",
+    "segmentos": []
+   },
+   {
+    "categoria": "Generador electroquirúrgico",
+    "modelo": "7-PG1-132",
+    "numero_serie": "00-327",
+    "descripcion": "Footswitch CROMA",
     "segmentos": []
    },
    {
@@ -585,6 +451,13 @@
     "segmentos": []
    },
    {
+    "categoria": "Generador electroquirúrgico",
+    "modelo": "7-RS2-210",
+    "numero_serie": "2-RS2-210",
+    "descripcion": "Interface Cable CROMA (3 unidades)",
+    "segmentos": []
+   },
+   {
     "categoria": "Electrobisturí de Alta Frecuencia",
     "modelo": "ARC 400 900-400",
     "numero_serie": "40007098",
@@ -592,14 +465,14 @@
     "segmentos": []
    },
    {
-    "categoria": "55",
+    "categoria": "Electrobisturí de Alta Frecuencia",
     "modelo": "ARC PLUS 900-001",
     "numero_serie": "90101176",
     "descripcion": "ARC PLUS Unidad de Argón para ARC 400",
     "segmentos": []
    },
    {
-    "categoria": "55",
+    "categoria": "Electrobisturí de Alta Frecuencia",
     "modelo": "ARC CART 902-022",
     "numero_serie": "266539",
     "descripcion": "ARC CART 902-022",
@@ -608,8 +481,15 @@
    {
     "categoria": "Accesorios equipos",
     "modelo": "SHA-P5",
-    "numero_serie": "11105",
+    "numero_serie": "ESHA-P5",
     "descripcion": "Comprobador manual de fugas",
+    "segmentos": []
+   },
+   {
+    "categoria": "Accesorios equipos",
+    "modelo": "SHA-P5",
+    "numero_serie": "ESHA-P6",
+    "descripcion": "",
     "segmentos": []
    },
    {

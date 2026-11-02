@@ -2,10 +2,10 @@
  "mes": "Octubre",
  "anio": 2026,
  "num_dias": 31,
- "es_mes_actual": true,
+ "es_mes_actual": false,
  "hoja": "Octubre 2026",
  "archivo_origen": "Copia de Trazabilidad Equipos Demostración Hasta oct.xlsx",
- "generado_en": "01/10/2026 09:38",
+ "generado_en": "02/11/2026 10:38",
  "buckets": {
   "Demostración": [],
   "Préstamo": [],
